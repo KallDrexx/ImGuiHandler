@@ -1,43 +1,110 @@
 # ImGui Handler
 
-ImGui Handler is a framework which tries to make it easy to get started with Dear ImGui in a C# application.  It does this by providing an MVVM style way to quickly create new custom GUI controls and a manager to take care of their lifetime.
+ImGui Handler is a library which tries to make it easy to get started with Dear ImGui in a C# application.  It does this by providing an MVVM style way to quickly create new custom GUI controls and a manager to take care of their lifetime.
 
-## Nuget Packages
+## Packages
 
-* [ImGuiHandler](https://www.nuget.org/packages/ImGuiHandler/)
+* ImGuiHandler - [![Nuget](https://img.shields.io/nuget/v/ImGuiHandler?style=flat)](https://www.nuget.org/packages/ImGuiHandler)
+
+## Example Custom Control
+
+Below is a sample of how you would use this library to set up a a basic editor for an entity, with full support for `PropertyChanged` events so other parts of your code can immediately react to changes.
+
+```
+public class EntityDataEditor : ImGuiElement
+{
+    private readonly EntityDataDisplay _displayWindow; 
+        
+    public int EntityId { get; }
+
+    [HasTextBuffer(100)]
+    public string DisplayName
+    {
+        get => Get<string>();
+        set => Set(value);
+    }
+
+    public int Health
+    {
+        get => Get<int>();
+        set => Set(value);
+    }
+
+    public int GoldCost
+    {
+        get => Get<int>();
+        set => Set(value);
+    }
+
+    public float MovementSpeed
+    {
+        get => Get<float>();
+        set => Set(value);
+    }
+
+    public EntityDataEditor(EntityData entity)
+    {
+        using (DisablePropertyChangedNotifications())
+        {
+            EntityId = entity.Id;
+            DisplayName = entity.DisplayName;
+            Health = entity.Health;
+            GoldCost = entity.GoldCost;
+            MovementSpeed = entity.MovementSpeed;
+        }
+        
+        _displayWindow = new EntityDataDisplay(entity);
+    }
+
+    protected override void CustomRender()
+    {
+        InputText(nameof(DisplayName), "Display Name");
+        InputInt(nameof(Health), "Health");
+        InputInt(nameof(GoldCost), "Gold Cost");
+        InputFloat(nameof(MovementSpeed), "Movement Speed");
+
+        if (ImGui.Button("Show Data Window"))
+        {
+            _displayWindow.IsVisible = !_displayWindow.IsVisible;
+        }
+        
+        _displayWindow.Render();
+    }
+}
+```
 
 ## Setting Things Up
 
 ### Rendering
 
-In order for Dear ImGUi controls to be displayed you need a way to pass the geometric geometry from Dear ImGui to the rendering system that your application uses.  This is done by creating an implementation of the `ImGuiRenderer` base class.
+In order for Dear ImGUi controls to be displayed you need a way to pass the geometric data from Dear ImGui to the rendering system that your application uses.  This is done by creating an implementation of the `ImGuiRenderer` base class.
 
-If your application is using MonoGame for rendering, than the `ImGuiHandler.MonoGame` project can be used to get a pre-written renderer.   See the [MonoGameImGuiRenderer.cs](https://github.com/KallDrexx/ImGuiHandler/blob/master/ImGuiHandler.MonoGame/MonoGameImGuiRenderer.cs) code for reference.
+If your application is using MonoGame for rendering, than the `ImGuiHandler.MonoGame` project can be used for a pre-written renderer.   See the [MonoGameImGuiRenderer.cs](https://github.com/KallDrexx/ImGuiHandler/blob/master/ImGuiHandler.MonoGame/MonoGameImGuiRenderer.cs) code for reference.
 
 IF your application is not using MonoGame, it should be relatively easy to create your own renderer as long as you know how to pass ImGui geometry data to your rendering pipeline.  If you have example code for that, you should be able to plug that code into an implementation of the `ImGuiRenderer` and be on your way.
 
 ### ImGui Management
 
-With an `ImGuiRenderer` available we then need to create an `ImGuiManager` instance.  The manager is used to hold a list of all root level custom ImGui elements and render them on demand.  The `ImGuiManager` also has useful properties to keep track of, such as `AcceptingMouseInput` and `AcceptingKeyboardInput` which can be used to prevent keyboard and mouse input meant for Dear ImGui elements from being consumed by non-ImGui elements of your application.
+With an `ImGuiRenderer` available we then need to create an `ImGuiManager` instance.  The manager is used to hold a list of all root level custom elements and render them each frame.  The `ImGuiManager` also has useful properties to to note, such as `AcceptingMouseInput` and `AcceptingKeyboardInput`.  These can be used to prevent keyboard and mouse input meant for Dear ImGui elements from being consumed by non-ImGui elements of your application.
 
-When your application then draws to the screen, you can render your ImGui elements by calling the `RenderElements(TimeSpan timeSinceLastFrame)` method on the `ImGuiManager`.
+When your application then draws to the screen, your ImGui elements are then rendered by calling `ImGuiManager.RenderElements(timeSinceLastFrame)`.
 
 As an example, a minimal MonoGame `Game` class would look like:
 
 ```
     public class App : Game
     {
-        private readonly GraphicsDeviceManager _graphics;
         private ImGuiManager _imGuiManager;
         
         public App()
         {
-            _graphics = new GraphicsDeviceManager(this);
+            new GraphicsDeviceManager(this);
             IsMouseVisible = true;
         }
 
         protected override void Initialize()
         {
+            // Must be instantiated *after* the graphics device has been initialized
             var imGuiRenderer = new MonoGameImGuiRenderer(this);
             imGuiRenderer.Initialize();
             
@@ -47,7 +114,7 @@ As an example, a minimal MonoGame `Game` class would look like:
 
         protected override void Draw(GameTime gameTime)
         {
-            _graphics.GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.CornflowerBlue);
 
             _imGuiManager.RenderElements(gameTime.ElapsedGameTime);
             
@@ -57,11 +124,11 @@ As an example, a minimal MonoGame `Game` class would look like:
 
 ## Creating Custom Controls
 
-One of the core benefits of the ImGui Handler library is it makes it easy to spin up new UI elements.  This is done by creating a class that implements the `ImGuiElement` base class.
+One of the core benefits of the ImGui Handler library is it makes it easy to create sets of UI controls.  This is done by creating a class that implements the `ImGuiElement` base class.
 
 ### Minimal Window 
 
-A bare bones window is the main Dear ImGui demo window.  This can be rendered by defining the following class:
+One example of a bare bones window is the main Dear ImGui demo window.  This can be rendered by defining the following class:
 
 ```
 public class DemoWindowElement : ImGuiElement
@@ -126,6 +193,7 @@ public class MyCustomWindow : ImGuiElement
     protected override void CustomRender()
     {
         ImGui.Begin("My Window");
+        InputText(nameof(SomeTextValue), "Text Input Example");
         ImGui.End();
     }
 }
