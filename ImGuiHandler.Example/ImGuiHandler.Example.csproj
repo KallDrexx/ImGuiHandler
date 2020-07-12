@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>netcoreapp3.1</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\ImGuiHandler.MonoGame\ImGuiHandler.MonoGame.csproj" />
+      <ProjectReference Include="..\ImGuiHandler\ImGuiHandler.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.0.1375-develop" />
+    </ItemGroup>
+
+</Project>
