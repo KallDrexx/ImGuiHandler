@@ -2,11 +2,21 @@
 
 ImGui Handler is a framework which tries to make it easy to get started with Dear ImGui in a C# application.  It does this by providing an MVVM style way to quickly create new custom GUI controls and a manager to take care of their lifetime.
 
+## Nuget Packages
+
+* [ImGuiHandler](https://www.nuget.org/packages/ImGuiHandler/)
+
 ## Setting Things Up
+
+### Rendering
 
 In order for Dear ImGUi controls to be displayed you need a way to pass the geometric geometry from Dear ImGui to the rendering system that your application uses.  This is done by creating an implementation of the `ImGuiRenderer` base class.
 
-The `ImGuiHandler.MonoGame` nuget package provides one that can be plugged into a MonoGame application, but one can be written for any backend renderer.
+If your application is using MonoGame for rendering, than the `ImGuiHandler.MonoGame` project can be used to get a pre-written renderer.   See the [MonoGameImGuiRenderer.cs](https://github.com/KallDrexx/ImGuiHandler/blob/master/ImGuiHandler.MonoGame/MonoGameImGuiRenderer.cs) code for reference.
+
+IF your application is not using MonoGame, it should be relatively easy to create your own renderer as long as you know how to pass ImGui geometry data to your rendering pipeline.  If you have example code for that, you should be able to plug that code into an implementation of the `ImGuiRenderer` and be on your way.
+
+### ImGui Management
 
 With an `ImGuiRenderer` available we then need to create an `ImGuiManager` instance.  The manager is used to hold a list of all root level custom ImGui elements and render them on demand.  The `ImGuiManager` also has useful properties to keep track of, such as `AcceptingMouseInput` and `AcceptingKeyboardInput` which can be used to prevent keyboard and mouse input meant for Dear ImGui elements from being consumed by non-ImGui elements of your application.
 
