@@ -115,7 +115,7 @@ namespace ImGuiHandler.Example
             var second = new EntityData
             {
                 Id = 2,
-                DisplayName = "Second",
+                DisplayName = null,
                 Health = 300,
                 GoldCost = 44,
                 MovementSpeed = 123.4f

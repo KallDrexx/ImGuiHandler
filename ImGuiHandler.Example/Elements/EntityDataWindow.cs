@@ -37,7 +37,7 @@ namespace ImGuiHandler.Example.Elements
                     {
                         foreach (var editor in _entityEditors)
                         {
-                            if (ImGui.TreeNode(editor.EntityId.ToString(), editor.DisplayName))
+                            if (ImGui.TreeNode(editor.EntityId.ToString(), editor.DisplayName ?? "<No Name>"))
                             {
                                 editor.IsVisible = true;
                                 editor.Render();

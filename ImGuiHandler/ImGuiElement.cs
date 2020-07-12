@@ -121,7 +121,10 @@ namespace ImGuiHandler
             // ImGui controls will display the wrong value.
             if (_propertyTextBuffers.TryGetValue(propertyName, out var textBuffer))
             {
-                var valueBytes = Encoding.ASCII.GetBytes((string) value);
+                var valueBytes = value != null
+                    ? Encoding.ASCII.GetBytes((string) value)
+                    : Array.Empty<byte>();
+                
                 Array.Clear(textBuffer, 0, textBuffer.Length);
                 
                 // Not sure if we should truncate or exception if the value is larger than the specified max length.
