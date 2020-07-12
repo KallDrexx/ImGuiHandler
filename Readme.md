@@ -164,7 +164,7 @@ Several of these are built-in, such as:
 
 To take advantage of the the features in the ImGui Handler library, we will create the elements in the following screen
 
-![Image Of Controls](ImGuiHandler.Example\ScreenShots\Full.png)
+![Image Of Controls](https://raw.githubusercontent.com/KallDrexx/ImGuiHandler/master/ImGuiHandler.Example/ScreenShots/Full.png)
 
 For this demonstration, we will assume we have the following data structure for holding entity specific data:
 
