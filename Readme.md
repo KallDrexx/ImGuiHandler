@@ -2,6 +2,28 @@
 
 ImGui Handler is a library which tries to make it easy to get started with Dear ImGui in a C# application.  It does this by providing an MVVM style way to quickly create new custom GUI controls and a manager to take care of their lifetime.
 
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents** 
+
+- [Packages](#packages)
+- [Example Custom Control](#example-custom-control)
+- [Setting Things Up](#setting-things-up)
+  - [Rendering](#rendering)
+  - [ImGui Management](#imgui-management)
+- [Creating Custom Controls](#creating-custom-controls)
+  - [Minimal Window](#minimal-window)
+  - [MVVM Style Properties](#mvvm-style-properties)
+  - [Simple Control Rendering Helpers](#simple-control-rendering-helpers)
+- [Demonstration](#demonstration)
+  - [Data Display](#data-display)
+  - [Entity Editor](#entity-editor)
+  - [Creating Entity Editor Elements](#creating-entity-editor-elements)
+  - [Entity Data Window](#entity-data-window)
+  - [Hooking It All Up](#hooking-it-all-up)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 ## Packages
 
 * ImGuiHandler - [![Nuget](https://img.shields.io/nuget/v/ImGuiHandler?style=flat)](https://www.nuget.org/packages/ImGuiHandler)
