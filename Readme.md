@@ -5,6 +5,8 @@ ImGui Handler is a library which tries to make it easy to get started with Dear 
 ## Packages
 
 * ImGuiHandler - [![Nuget](https://img.shields.io/nuget/v/ImGuiHandler?style=flat)](https://www.nuget.org/packages/ImGuiHandler)
+* ImGuiHandler.Monogame - [![Nuget](https://img.shields.io/nuget/v/ImGuiHandler.MonoGame?style=flat)](https://www.nuget.org/packages/ImGuiHandler.MonoGame)
+  * **Warning**: The MonoGame project has a hard dependency on MG 3.8 DesktopGL preview.  This should be elimintated once MonoGame 3.8 fully releases.
 
 ## Example Custom Control
 
