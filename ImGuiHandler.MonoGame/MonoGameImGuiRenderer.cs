@@ -15,6 +15,7 @@ namespace ImGuiHandler.MonoGame
         private readonly Game _game;
         private readonly GraphicsDevice _graphicsDevice;
         private readonly RasterizerState _rasterizerState;
+        private readonly SamplerState _defaultSampleState = new SamplerState();
         private BasicEffect _effect;
         
         private byte[] _vertexData;
@@ -118,7 +119,7 @@ namespace ImGuiHandler.MonoGame
             // Some games have changed the sampler state, and this can make fonts blurry.  So we want to make sure
             // to reset it while rendering
             var oldSamplerState = _game.GraphicsDevice.SamplerStates[0];
-            _game.GraphicsDevice.SamplerStates[0] = new SamplerState();
+            _game.GraphicsDevice.SamplerStates[0] = _defaultSampleState;
             
             // Setup render state: alpha-blending enabled, no face culling, no depth testing, scissor enabled, vertex/texcoord/color pointers
             var lastViewport = _graphicsDevice.Viewport;
