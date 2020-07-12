@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.ComponentModel;
 using ImGuiHandler.Example.Elements;
 using ImGuiHandler.MonoGame;
 using Microsoft.Xna.Framework;
@@ -10,7 +9,6 @@ namespace ImGuiHandler.Example
     public class App : Game
     {
         private static readonly EntityData[] Entities = FormTestEntities();
-        private readonly GraphicsDeviceManager _graphics;
         private readonly DemoWindowElement _demoWindowElement;
         private readonly EntityDataWindow _entityDataWindow;
         private ImGuiManager _imGuiManager;
@@ -18,7 +16,7 @@ namespace ImGuiHandler.Example
         
         public App()
         {
-            _graphics = new GraphicsDeviceManager(this)
+            new GraphicsDeviceManager(this)
             {
                 PreferredBackBufferWidth = 1024, 
                 PreferredBackBufferHeight = 768,
@@ -62,7 +60,7 @@ namespace ImGuiHandler.Example
 
         protected override void Draw(GameTime gameTime)
         {
-            _graphics.GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.CornflowerBlue);
             
             _imGuiManager.RenderElements(gameTime.ElapsedGameTime);
             

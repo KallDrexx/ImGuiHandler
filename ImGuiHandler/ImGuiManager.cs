@@ -6,7 +6,7 @@ namespace ImGuiHandler
 {
     public class ImGuiManager
     {
-        private readonly ImguiRenderer _renderer;
+        private readonly ImGuiRenderer _renderer;
         private readonly List<ImGuiElement> _elements = new List<ImGuiElement>();
         
         /// <summary>
@@ -23,7 +23,7 @@ namespace ImGuiHandler
         /// </summary>
         public bool AcceptingKeyboardInput { get; private set; }
 
-        public ImGuiManager(ImguiRenderer renderer)
+        public ImGuiManager(ImGuiRenderer renderer)
         {
             _renderer = renderer;
             

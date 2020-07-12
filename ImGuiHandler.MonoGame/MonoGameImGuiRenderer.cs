@@ -9,7 +9,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace ImGuiHandler.MonoGame
 {
-    public class MonoGameImGuiRenderer : ImguiRenderer
+    public class MonoGameImGuiRenderer : ImGuiRenderer
     {
         // Adapted from the sample from the ImGui.net repository: https://github.com/mellinoe/ImGui.NET
         private readonly Game _game;

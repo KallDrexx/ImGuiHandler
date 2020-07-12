@@ -6,7 +6,7 @@ namespace ImGuiHandler
     /// <summary>
     /// Standardized interface for hooking Dear ImGui into different rendering systems.
     /// </summary>
-    public abstract class ImguiRenderer
+    public abstract class ImGuiRenderer
     {
         private bool _hasBeenInitialized;
 
