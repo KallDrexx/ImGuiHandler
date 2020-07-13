@@ -92,9 +92,23 @@ namespace ImGuiHandler
                 throw new ArgumentNullException(nameof(propertyName));
             }
 
-            return _notifyPropertyChangedObjects.TryGetValue(propertyName, out var value)
-                ? (T) value
-                : default;
+            if (!_notifyPropertyChangedObjects.TryGetValue(propertyName, out var value))
+            {
+                return default;
+            }
+            
+            // If this is a string type, then we need to remove trailing null characters that sometimes come as a
+            // result of `Encoding.GetString()` calls.  Yes, this is bad for allocations, though hopefully these 
+            // strings don't last long enough to get to the real painful generations.  The string handling needs to
+            // be rewritten to use .net standard 2.1's GetChars(ReadOnlySpan<byte>, Span<char>) overload, but to make
+            // that work requires a good bit of rework, and this exact moment I just want to fix trailing null 
+            // characters that seems to be really confusing json.net and other things.
+            if (value is string stringValue)
+            {
+                value = stringValue.TrimEnd('\0');
+            }
+
+            return (T) value;
         }
         
         /// <summary>
@@ -122,7 +136,7 @@ namespace ImGuiHandler
             if (_propertyTextBuffers.TryGetValue(propertyName, out var textBuffer))
             {
                 var valueBytes = value != null
-                    ? Encoding.ASCII.GetBytes((string) value)
+                    ? Encoding.Default.GetBytes((string) value)
                     : Array.Empty<byte>();
                 
                 Array.Clear(textBuffer, 0, textBuffer.Length);
@@ -137,40 +151,6 @@ namespace ImGuiHandler
             {
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
             }
-        }
-        
-        /// <summary>
-        /// Retrieves the text buffer for the specified property.  Properties must be tagged with a
-        /// [HasTextBuffer] attribute in order for a text buffer to be retrieved
-        /// </summary>
-        protected byte[] GetTextBuffer(string property)
-        {
-            if (!_propertyTextBuffers.TryGetValue(property, out var buffer))
-            {
-                var message = $"Property {property} does not have a text buffer available.  " +
-                              "Make sure it's marked with the [HasTextBuffer] attribute";
-                
-                throw new InvalidOperationException(message);
-            }
-
-            return buffer;
-        }
-        
-        /// <summary>
-        /// Updates a string property's value from the value being stored in an underlying text buffer
-        /// </summary>
-        protected void UpdatePropertyFromTextBuffer(string propertyName)
-        {
-            if (!_propertyTextBuffers.TryGetValue(propertyName, out var buffer))
-            {
-                var message = $"Property {propertyName} does not have a text buffer available.  " +
-                              "Make sure it's marked with the [HasTextBuffer] attribute";
-                
-                throw new InvalidOperationException(message);
-            }
-
-            var stringValue = Encoding.ASCII.GetString(buffer);
-            Set(stringValue, propertyName);
         }
         
         /// <summary>
@@ -221,6 +201,40 @@ namespace ImGuiHandler
             var value = Get<bool>(property);
             ImGui.Checkbox(label, ref value);
             Set(value, property);
+        }
+        
+        /// <summary>
+        /// Retrieves the text buffer for the specified property.  Properties must be tagged with a
+        /// [HasTextBuffer] attribute in order for a text buffer to be retrieved
+        /// </summary>
+        private byte[] GetTextBuffer(string property)
+        {
+            if (!_propertyTextBuffers.TryGetValue(property, out var buffer))
+            {
+                var message = $"Property {property} does not have a text buffer available.  " +
+                              "Make sure it's marked with the [HasTextBuffer] attribute";
+                
+                throw new InvalidOperationException(message);
+            }
+
+            return buffer;
+        }
+        
+        /// <summary>
+        /// Updates a string property's value from the value being stored in an underlying text buffer
+        /// </summary>
+        private void UpdatePropertyFromTextBuffer(string propertyName)
+        {
+            if (!_propertyTextBuffers.TryGetValue(propertyName, out var buffer))
+            {
+                var message = $"Property {propertyName} does not have a text buffer available.  " +
+                              "Make sure it's marked with the [HasTextBuffer] attribute";
+                
+                throw new InvalidOperationException(message);
+            }
+
+            var stringValue = Encoding.Default.GetString(buffer);
+            Set(stringValue, propertyName);
         }
         
         private class EventNotificationDisabler : IDisposable
