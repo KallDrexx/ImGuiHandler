@@ -91,24 +91,18 @@ namespace ImGuiHandler
             {
                 throw new ArgumentNullException(nameof(propertyName));
             }
-
-            if (!_notifyPropertyChangedObjects.TryGetValue(propertyName, out var value))
-            {
-                return default;
-            }
             
-            // If this is a string type, then we need to remove trailing null characters that sometimes come as a
-            // result of `Encoding.GetString()` calls.  Yes, this is bad for allocations, though hopefully these 
-            // strings don't last long enough to get to the real painful generations.  The string handling needs to
-            // be rewritten to use .net standard 2.1's GetChars(ReadOnlySpan<byte>, Span<char>) overload, but to make
-            // that work requires a good bit of rework, and this exact moment I just want to fix trailing null 
-            // characters that seems to be really confusing json.net and other things.
-            if (value is string stringValue)
+            if (typeof(T) == typeof(string) && _propertyTextBuffers.TryGetValue(propertyName, out var textBuffer))
             {
-                value = stringValue.TrimEnd('\0');
+                // If this is a string type backed by a text buffer, then _notifyPropertyChangedObjects will *NOT* have
+                // the value.  This is to keep the number of times we have to convert between a byte buffer and string
+                // down.  Therefore, strings will be lazily materialized.
+                return (T) (object)Encoding.Default.GetString(textBuffer).TrimEnd('\0');
             }
 
-            return (T) value;
+            return _notifyPropertyChangedObjects.TryGetValue(propertyName, out var value)
+                ? (T) value
+                : default;
         }
         
         /// <summary>
@@ -147,12 +141,9 @@ namespace ImGuiHandler
                 Array.Copy(valueBytes, textBuffer, length);
             }
 
-            if (!_disablePropertyNotificationEvents)
-            {
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-            }
+            CallPropertyChangedNotification(propertyName);
         }
-        
+
         /// <summary>
         /// Creates a standard ImGui text editor for a property
         /// </summary>
@@ -202,7 +193,7 @@ namespace ImGuiHandler
             ImGui.Checkbox(label, ref value);
             Set(value, property);
         }
-        
+
         /// <summary>
         /// Retrieves the text buffer for the specified property.  Properties must be tagged with a
         /// [HasTextBuffer] attribute in order for a text buffer to be retrieved
@@ -219,13 +210,13 @@ namespace ImGuiHandler
 
             return buffer;
         }
-        
+
         /// <summary>
         /// Updates a string property's value from the value being stored in an underlying text buffer
         /// </summary>
         private void UpdatePropertyFromTextBuffer(string propertyName)
         {
-            if (!_propertyTextBuffers.TryGetValue(propertyName, out var buffer))
+            if (!_propertyTextBuffers.ContainsKey(propertyName))
             {
                 var message = $"Property {propertyName} does not have a text buffer available.  " +
                               "Make sure it's marked with the [HasTextBuffer] attribute";
@@ -233,10 +224,23 @@ namespace ImGuiHandler
                 throw new InvalidOperationException(message);
             }
 
-            var stringValue = Encoding.Default.GetString(buffer);
-            Set(stringValue, propertyName);
+            // We don't want to actually call `Set<string>()` here, because we don't want to materialize the 
+            // string from the byte data.  This will be called every frame that an ImGui text input is visible (and
+            // for each one), which will cause a lot of garbage.  However, we only care about materializing the
+            // final string when the property's getter is being called, which will be sometime later.  Therefore,
+            // we will just call notifications and let the Getter materialize the string.
+
+            CallPropertyChangedNotification(propertyName);
         }
-        
+
+        private void CallPropertyChangedNotification(string propertyName)
+        {
+            if (!_disablePropertyNotificationEvents)
+            {
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
+
         private class EventNotificationDisabler : IDisposable
         {
             private readonly ImGuiElement _element;
