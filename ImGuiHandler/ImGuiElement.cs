@@ -97,7 +97,15 @@ namespace ImGuiHandler
                 // If this is a string type backed by a text buffer, then _notifyPropertyChangedObjects will *NOT* have
                 // the value.  This is to keep the number of times we have to convert between a byte buffer and string
                 // down.  Therefore, strings will be lazily materialized.
-                return (T) (object)Encoding.Default.GetString(textBuffer).TrimEnd('\0');
+                
+                // When we pass a string to ImGui of length X, but the user sets the value to a string that's less
+                // than X - 1, we end up getting null codes in the string, and in some cases this may put null values
+                // in the middle of a string, thus making wrong in serialization and I/O operations.  This tends to
+                // happen when select-all + paste occurs in a text box.  To prevent errors we only want the string
+                // up to the first null character
+
+                var rawString = Encoding.Default.GetString(textBuffer);
+                return (T) (object) rawString.Split('\0')[0];
             }
 
             return _notifyPropertyChangedObjects.TryGetValue(propertyName, out var value)
@@ -150,8 +158,12 @@ namespace ImGuiHandler
         protected void InputText(string property, string label)
         {
             var buffer = GetTextBuffer(property);
-            ImGui.InputText(label, buffer, (uint) buffer.Length);
-            UpdatePropertyFromTextBuffer(property);
+            var hasBeenChanged = ImGui.InputText(label, buffer, (uint) buffer.Length);
+
+            if (hasBeenChanged)
+            {
+                UpdatePropertyFromTextBuffer(property);
+            }
         }
 
         /// <summary>
@@ -160,8 +172,12 @@ namespace ImGuiHandler
         protected void InputInt(string property, string label)
         {
             var intVal = Get<int>(property);
-            ImGui.InputInt(label, ref intVal);
-            Set(intVal, property);
+            var hasBeenChanged = ImGui.InputInt(label, ref intVal);
+
+            if (hasBeenChanged)
+            {
+                Set(intVal, property);
+            }
         }
 
         /// <summary>
@@ -170,8 +186,12 @@ namespace ImGuiHandler
         protected void InputDouble(string property, string label)
         {
             var value = Get<double>(property);
-            ImGui.InputDouble(label, ref value);
-            Set(value, property);
+            var hasBeenChanged = ImGui.InputDouble(label, ref value);
+            
+            if (hasBeenChanged)
+            {
+                Set(value, property);
+            }
         }
 
         /// <summary>
@@ -180,8 +200,10 @@ namespace ImGuiHandler
         protected void InputFloat(string property, string label)
         {
             var value = Get<float>(property);
-            ImGui.InputFloat(label, ref value);
-            Set(value, property);
+            var hasBeenChanged = ImGui.InputFloat(label, ref value);
+            {
+                Set(value, property);
+            }
         }
 
         /// <summary>
@@ -190,8 +212,12 @@ namespace ImGuiHandler
         protected void Checkbox(string property, string label)
         {
             var value = Get<bool>(property);
-            ImGui.Checkbox(label, ref value);
-            Set(value, property);
+            var hasBeenChanged = ImGui.Checkbox(label, ref value);
+            
+            if (hasBeenChanged)
+            {
+                Set(value, property);
+            }
         }
 
         /// <summary>

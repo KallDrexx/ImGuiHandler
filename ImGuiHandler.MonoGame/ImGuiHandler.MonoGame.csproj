@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
-        <Version>1.0.0-preview6</Version>
+        <Version>1.0.0-preview7</Version>
         <Authors>KallDrexx</Authors>
         <PackageProjectUrl>https://github.com/KallDrexx/ImGuiHandler</PackageProjectUrl>
         <RepositoryType>git</RepositoryType>
