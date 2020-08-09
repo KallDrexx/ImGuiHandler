@@ -17,11 +17,11 @@ namespace ImGuiHandler
         private readonly Dictionary<string, object> _notifyPropertyChangedObjects = new Dictionary<string, object>();
         private readonly Dictionary<string, byte[]> _propertyTextBuffers = new Dictionary<string, byte[]>();
         private bool _disablePropertyNotificationEvents;
-        
+
         /// <summary>
         /// When true this component is expected to be rendered
         /// </summary>
-        public bool IsVisible { get; set; }
+        public bool IsVisible { get; set; } = true;
         
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -201,6 +201,8 @@ namespace ImGuiHandler
         {
             var value = Get<float>(property);
             var hasBeenChanged = ImGui.InputFloat(label, ref value);
+            
+            if (hasBeenChanged)
             {
                 Set(value, property);
             }
