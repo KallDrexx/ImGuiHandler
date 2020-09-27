@@ -78,6 +78,21 @@ namespace ImGuiHandler.MonoGame
             _loadedTextures.Remove(textureId);
         }
 
+        /// <summary>
+        /// Allows updating the texture that a previous texture pointer refers to.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">Thrown if the texture pointer is unknown</exception>
+        public void ReBindTexture(IntPtr textureId, Texture2D newTexture)
+        {
+            if (_loadedTextures.ContainsKey(textureId))
+            {
+                const string message = "Attempted to rebind texture to an ID that's not already set";
+                throw new InvalidOperationException(message);
+            }
+
+            _loadedTextures[textureId] = newTexture;
+        }
+
         protected override void CustomInitialize()
         {
             RebuildFontAtlas();
