@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using ImGuiHandler.Example.Elements;
 using ImGuiHandler.MonoGame;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
 namespace ImGuiHandler.Example
@@ -11,6 +12,7 @@ namespace ImGuiHandler.Example
         private static readonly EntityData[] Entities = FormTestEntities();
         private readonly DemoWindowElement _demoWindowElement;
         private readonly EntityDataWindow _entityDataWindow;
+        private ImageTestWindow _imageTestWindow;
         private ImGuiManager _imGuiManager;
         private KeyboardState _previousKeyState, _currentKeyState;
         
@@ -23,9 +25,11 @@ namespace ImGuiHandler.Example
                 PreferMultiSampling = true
             };
 
+            Window.AllowUserResizing = true;
+
             IsMouseVisible = true;
             
-            _demoWindowElement = new DemoWindowElement();
+            _demoWindowElement = new DemoWindowElement{IsVisible = false};
 
             var entityEditors = CreateEntityDataEditors();
             _entityDataWindow = new EntityDataWindow(entityEditors);
@@ -36,12 +40,15 @@ namespace ImGuiHandler.Example
             var imGuiRenderer = new MonoGameImGuiRenderer(this);
             imGuiRenderer.Initialize();
             
+            _imageTestWindow = new ImageTestWindow(GraphicsDevice, imGuiRenderer);
+            
             _imGuiManager = new ImGuiManager(imGuiRenderer);
             _imGuiManager.AddElement(_demoWindowElement);
             _imGuiManager.AddElement(_entityDataWindow);
+            _imGuiManager.AddElement(_imageTestWindow);
 
             _entityDataWindow.IsVisible = true;
-            
+
             base.Initialize();
         }
 

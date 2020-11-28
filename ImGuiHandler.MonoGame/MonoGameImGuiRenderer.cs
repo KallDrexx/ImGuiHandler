@@ -15,7 +15,6 @@ namespace ImGuiHandler.MonoGame
         private readonly Game _game;
         private readonly GraphicsDevice _graphicsDevice;
         private readonly RasterizerState _rasterizerState;
-        private readonly SamplerState _defaultSampleState = new SamplerState();
         private BasicEffect _effect;
         
         private byte[] _vertexData;
@@ -131,11 +130,6 @@ namespace ImGuiHandler.MonoGame
 
         protected override void RenderImGui(ImDrawDataPtr drawData)
         {
-            // Some games have changed the sampler state, and this can make fonts blurry.  So we want to make sure
-            // to reset it while rendering
-            var oldSamplerState = _game.GraphicsDevice.SamplerStates[0];
-            _game.GraphicsDevice.SamplerStates[0] = _defaultSampleState;
-            
             // Setup render state: alpha-blending enabled, no face culling, no depth testing, scissor enabled, vertex/texcoord/color pointers
             var lastViewport = _graphicsDevice.Viewport;
             var lastScissorBox = _graphicsDevice.ScissorRectangle;
@@ -158,9 +152,6 @@ namespace ImGuiHandler.MonoGame
             // Restore modified state
             _graphicsDevice.Viewport = lastViewport;
             _graphicsDevice.ScissorRectangle = lastScissorBox;
-            
-            // Reset sampler state back to what the game had previously set up
-            _game.GraphicsDevice.SamplerStates[0] = oldSamplerState;
         }
         
         /// <summary>
@@ -340,17 +331,9 @@ namespace ImGuiHandler.MonoGame
 
             var io = ImGui.GetIO();
 
-            // MonoGame-specific //////////////////////
-            var offset = .5f;
-            ///////////////////////////////////////////
-
-            // FNA-specific ///////////////////////////
-            //var offset = 0f;
-            ///////////////////////////////////////////
-
             _effect.World = Matrix.Identity;
             _effect.View = Matrix.Identity;
-            _effect.Projection = Matrix.CreateOrthographicOffCenter(offset, io.DisplaySize.X + offset, io.DisplaySize.Y + offset, offset, -1f, 1f);
+            _effect.Projection = Matrix.CreateOrthographicOffCenter(0, io.DisplaySize.X, io.DisplaySize.Y, 0, -1f, 1f);
             _effect.TextureEnabled = true;
             _effect.Texture = texture;
             _effect.VertexColorEnabled = true;

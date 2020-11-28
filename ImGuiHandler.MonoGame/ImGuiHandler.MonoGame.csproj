@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
-        <Version>1.1.0</Version>
+        <Version>1.1.1</Version>
         <Authors>KallDrexx</Authors>
         <PackageProjectUrl>https://github.com/KallDrexx/ImGuiHandler</PackageProjectUrl>
         <RepositoryType>git</RepositoryType>
@@ -22,7 +22,7 @@
 
     <ItemGroup>
       <PackageReference Include="ImGui.NET" Version="1.75.0" />
-      <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.0.1375-develop">
+      <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.0.1641">
           <PrivateAssets>All</PrivateAssets>
       </PackageReference>
     </ItemGroup>
